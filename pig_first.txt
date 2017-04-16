@@ -1,0 +1,53 @@
+(a) Top 5 employees (employee id and employee name) with highest rating.
+(In case two employees have same rating, employee with name coming first in dictionary
+should get preference)
+
+rating = load '/home/jayant/Downloads/employee_details.txt' using PigStorage (',') as (id:int,name:chararray, sal:int, rating:int);
+ratingop = foreach rating generate id, name, rating;
+ratingorder = order ratingop by rating asc, name asc;
+ratinglim = limit ratingorder 5;
+store ratinglim into '/home/jayant/pig_first_op';
+
+
+(b) Top 3 employees (employee id and employee name) with highest salary, whose employee id
+is an odd number.(In case two employees have same salary, employee with name coming first in dictionary
+should get preference)
+
+rating = load '/home/jayant/Downloads/employee_details.txt' using PigStorage (',') as (id:int,name:chararray, sal:int, rating:int);
+ratingsal = foreach rating generate id, name, sal;
+ratingsalorder = order ratingsal by sal desc, name asc;
+ratingsalfil = filter ratingsalorder by id%2==1;
+ratingsallim = limit ratingsalfil 3;
+store ratinglim into '/home/jayant/pig_first_opsal';
+
+
+
+(c) Employee (employee id and employee name) with maximum expense
+(In case two employees have same expense, employee with name coming first in dictionary
+should get preference)
+
+rating = load '/home/jayant/Downloads/employee_details.txt' using PigStorage (',') as (id:int,name:chararray, sal:int, rating:int);
+expense = load '/home/jayant/Downloads/employee_expenses.txt' using PigStorage (',') as (id:int,expense:int); 
+joined = join rating by id, expense by id;
+exporder = order joined by expense desc;
+expensive = foreach exporder generate rating::id,rating::name;
+explim = limit expensive 1;
+store explim into '/home/jayant/joined';
+
+(d) List of employees (employee id and employee name) having entries in employee_expenses
+file.
+
+rating = load '/home/jayant/Downloads/employee_details.txt' using PigStorage (',') as (id:int,name:chararray, sal:int, rating:int);
+expense = load '/home/jayant/Downloads/employee_expenses.txt' using PigStorage (',') as (id:int,expense:int); 
+joinedright = join rating by id Right, expense by id;
+store joinedright into '/home/jayant/joinedright';
+
+
+(e) List of employees (employee id and employee name) having no entry in employee_expenses
+file.
+rating = load '/home/jayant/Downloads/employee_details.txt' using PigStorage (',') as (id:int,name:chararray, sal:int, rating:int);
+expense = load '/home/jayant/Downloads/employee_expenses.txt' using PigStorage (',') as (id:int,expense:int); 
+joinedleft = join rating by id Left, expense by id;
+joinedfilter = filter joinedleft by expense::id==null;
+joinedgen = foreach joinedfilter generate rating::id, rating::name;
+store joinedfilter into '/home/jayant/joinedgen';
